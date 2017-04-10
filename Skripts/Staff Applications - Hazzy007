@@ -1,0 +1,90 @@
+#Edited Staff Applications by Hazzy007
+#Original Version Created By TheDutchGameKing
+
+options:
+	prefix: <gray><bold>[<aqua><bold>Applications<gray><bold>]<aqua><bold>
+	
+	NoPerm: <red>You don't have permission to perform this command.
+	
+	denied: <gray><bold>[<aqua><bold>Applications<gray><bold>]<gold> %arg-1% has been <red><bold>denied<gold> into the staff team!
+	accepted: <gray><bold>[<aqua><bold>Applications<gray><bold>]<gold> %arg-1% has been <green><bold>accepted<gold> into the staff team!
+	apply: <gray><bold>[<aqua><bold>Applications<gray><bold>] %player% is applying for staff, check at https://docs.google.com/forms/d/1YH872xsST1TsCMd39PeqwR2YN0oTdrY-QF3ofzJjTII
+	
+	#Your name:
+	name: Hazzy007
+	
+	#This is for the main player
+	staffPermission: /manuaddp %player% staff.isstaff
+	denyPermission: /manuaddp %player% staff.deny
+	acceptPermission: /manuaddp %player% staff.accept
+	
+	#This is for the new player that you would give the permissions
+	newStaffPermission: /manuaddp %arg-1% staff.isstaff
+	newDenyPermission: /manuaddp %arg-1% staff.deny
+	newAcceptPermission: /manuaddp %arg-1% staff.accept
+
+on join:
+	if player's name is "{@name}":
+		make console execute command "{@staffPermission}"
+		make console execute command "{@acceptPermission}"
+		make console execute command "{@denyPermission}"
+	loop all players:
+		if loop-player has permission "staff.isstaff":
+			wait 5 ticks
+			size of {App.applying.player::*} is 0:
+				message "{@prefix} There are currently no applications!"
+			else:
+				message "{@prefix} Application: &7%{App.applying.player::*}%"
+	
+command /apply:
+	trigger:
+		if player has permission "staff.isstaff":
+			message "{@prefix} <gold>You are already in the staff team"
+		else:
+			message "{@prefix} <gold>Apply at: <gold>http://zoowarrior.wixsite.com/pvplegacy/apply-for-staff"
+			add player to {App.applying.player::*}
+			loop all players:
+				if loop-player has permission "staff.isstaff":
+					message "{@apply}" to loop-player
+
+command /accept [<player>]:
+	trigger:
+		if player has permission "staff.isstaff":
+			if arg 1 is not set:
+				message "{@prefix} <red>You need to choose a player to <green>accept<red>!"
+			else:
+				if arg-1 has permission "staff.isstaff":
+					message "{@prefix} <green>That player is already in the staff team!"
+				else:
+					broadcast "{@accepted}"
+					remove arg-1 from {App.applying.player::*}
+					make console execute command "{@newStaffPermission}"
+					make console execute command "{@newAcceptPermission}"
+					make console execute command "{@newDenyPermission}"
+		else:
+			message "{@NoPerm}"
+
+command /deny [<player>]:
+	trigger:
+		if player has permission "staff.isstaff":
+			if arg 1 is not set:
+				message "{@prefix} <red>You need to choose a player to deny!"
+			else:
+				if arg-1 has permission "staff.isstaff":
+					message "{@prefix} <green>That player is already in the staff team!"
+				else:
+					broadcast "{@denied}"
+					remove arg-1 from {App.applying.player::*}
+		else:
+			message "{@NoPerm}"
+
+command /staff:
+	trigger:
+		loop all players:
+			remove loop-player from {App.staff::*}
+			if loop-player has permission "staff.isstaff":
+				add loop-player to {App.staff::*}
+		size of {App.staff::*} is 0:
+			message "{@prefix} <red><bold>No staff currently online!"
+		else:
+			message "{@prefix} Staff List: <green>%{App.staff::*}%"
